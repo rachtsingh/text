@@ -42,14 +42,14 @@ class TREC(data.Dataset):
         super(TREC, self).__init__(examples, fields, **kwargs)
 
     @classmethod
-    def splits(cls, text_field, label_field, root='.data',
+    def splits(cls, text_field, label_field, root='./data',
                train='train_5500.label', test='TREC_10.label', **kwargs):
         """Create dataset objects for splits of the TREC dataset.
 
         Arguments:
             text_field: The field that will be used for the sentence.
             label_field: The field that will be used for label data.
-            root: Root dataset storage directory. Default is '.data'.
+            root: Root dataset storage directory. Default is './data'.
             train: The filename of the train data. Default: 'train_5500.label'.
             test: The filename of the test data, or None to not load the test
                 set. Default: 'TREC_10.label'.
@@ -61,7 +61,7 @@ class TREC(data.Dataset):
             train=train, validation=None, test=test, **kwargs)
 
     @classmethod
-    def iters(cls, batch_size=32, device=0, root='.data', vectors=None, **kwargs):
+    def iters(cls, batch_size=32, device=0, root='./data', vectors=None, **kwargs):
         """Creater iterator objects for splits of the TREC dataset.
 
         Arguments:

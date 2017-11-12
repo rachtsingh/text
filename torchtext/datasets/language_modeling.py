@@ -1,6 +1,5 @@
 from .. import data
 
-
 class LanguageModelingDataset(data.Dataset):
     """Defines a dataset for language modeling."""
 
@@ -27,6 +26,70 @@ class LanguageModelingDataset(data.Dataset):
         super(LanguageModelingDataset, self).__init__(
             examples, fields, **kwargs)
 
+class PennTreeBank(LanguageModelingDataset):
+    urls = ['https://github.com/pytorch/examples/raw/master/word_language_model/data/penn/train.txt',
+            'https://github.com/pytorch/examples/raw/master/word_language_model/data/penn/valid.txt',
+            'https://github.com/pytorch/examples/raw/master/word_language_model/data/penn/test.txt']
+    name = 'ptb'
+    dirname = 'ptb'
+
+    @classmethod
+    def splits(cls, text_field, root='./data', train='train.txt',
+               validation='valid.txt', test='test.txt', **kwargs):
+        """Create dataset objects for splits of the WikiText-2 dataset.
+
+        This is the most flexible way to use the dataset.
+
+        Arguments:
+            text_field: The field that will be used for text data.
+            root: The root directory that the dataset's zip archive will be
+                expanded into; therefore the directory in whose wikitext-2
+                subdirectory the data files will be stored.
+            train: The filename of the train data.
+            validation: The filename of the validation data, or None to not
+                load the validation set.
+            test: The filename of the test data, or None to not load the test
+                set.
+        """
+        return super(PennTreeBank, cls).splits(
+            root=root, train=train, validation=validation, test=test,
+            text_field=text_field, **kwargs)
+
+    @classmethod
+    def iters(cls, batch_size=32, bptt_len=35, device=0, root='./data', vectors=None, 
+              jitter=True, **kwargs):
+        """Create iterator objects for splits of the WikiText-2 dataset.
+
+        This is the simplest way to use the dataset, and assumes common
+        defaults for field, vocabulary, and iterator parameters.
+
+        Arguments:
+            batch_size: Batch size.
+            bptt_len: Length of sequences for backpropagation through time.
+            device: Device to create batches on. Use -1 for CPU and None for
+                the currently active GPU device.
+            root: The root directory that the dataset's zip archive will be
+                expanded into; therefore the directory in whose wikitext-2
+                subdirectory the data files will be stored.
+            vectors: Passed to the Vocab constructor for the
+                text field. The word vectors are accessible as
+                train./dataset.fields['text'].vocab.vectors.
+            Remaining keyword arguments: Passed to the splits method.
+        """
+        TEXT = data.Field()
+
+        train, val, test = cls.splits(TEXT, root=root, **kwargs)
+
+        TEXT.build_vocab(train, vectors=vectors)
+
+        if jitter:
+            return data.BPTTJitterIterator.splits(
+                (train, val, test), batch_size=batch_size, mean_bptt_len=bptt_len,
+                device=device, repeat=False)
+        else:
+            return data.BPTTIterator.splits(
+                (train, val, test), batch_size=batch_size, bptt_len=bptt_len,
+                device=device, repeat=False)
 
 class WikiText2(LanguageModelingDataset):
 
@@ -35,7 +98,7 @@ class WikiText2(LanguageModelingDataset):
     dirname = 'wikitext-2'
 
     @classmethod
-    def splits(cls, text_field, root='.data', train='wiki.train.tokens',
+    def splits(cls, text_field, root='./data', train='wiki.train.tokens',
                validation='wiki.valid.tokens', test='wiki.test.tokens'):
         """Create dataset objects for splits of the WikiText-2 dataset.
 
@@ -57,8 +120,8 @@ class WikiText2(LanguageModelingDataset):
             text_field=text_field)
 
     @classmethod
-    def iters(cls, batch_size=32, bptt_len=35, device=0, root='.data', wv_dir='.',
-              wv_type=None, wv_dim='300d', **kwargs):
+    def iters(cls, batch_size=32, bptt_len=35, device=0, root='./data', vectors=None, 
+        **kwargs):
         """Create iterator objects for splits of the WikiText-2 dataset.
 
         This is the simplest way to use the dataset, and assumes common
@@ -72,16 +135,16 @@ class WikiText2(LanguageModelingDataset):
             root: The root directory that the dataset's zip archive will be
                 expanded into; therefore the directory in whose wikitext-2
                 subdirectory the data files will be stored.
-            wv_dir, wv_type, wv_dim: Passed to the Vocab constructor for the
+            vectors: Passed to the Vocab constructor for the
                 text field. The word vectors are accessible as
-                train.dataset.fields['text'].vocab.vectors.
+                train./dataset.fields['text'].vocab.vectors.
             Remaining keyword arguments: Passed to the splits method.
         """
         TEXT = data.Field()
 
         train, val, test = cls.splits(TEXT, root=root, **kwargs)
 
-        TEXT.build_vocab(train, wv_dir=wv_dir, wv_type=wv_type, wv_dim=wv_dim)
+        TEXT.build_vocab(train, vectors=vectors)
 
         return data.BPTTIterator.splits(
             (train, val, test), batch_size=batch_size, bptt_len=bptt_len,

@@ -36,14 +36,14 @@ class IMDB(data.Dataset):
         super(IMDB, self).__init__(examples, fields, **kwargs)
 
     @classmethod
-    def splits(cls, text_field, label_field, root='.data',
+    def splits(cls, text_field, label_field, root='./data',
                train='train', test='test', **kwargs):
         """Create dataset objects for splits of the IMDB dataset.
 
         Arguments:
             text_field: The field that will be used for the sentence.
             label_field: The field that will be used for label data.
-            root: Root dataset storage directory. Default is '.data'.
+            root: Root dataset storage directory. Default is './data'.
             train: The directory that contains the training examples
             test: The directory that contains the test examples
             Remaining keyword arguments: Passed to the splits method of
@@ -54,7 +54,7 @@ class IMDB(data.Dataset):
             train=train, validation=None, test=test, **kwargs)
 
     @classmethod
-    def iters(cls, batch_size=32, device=0, root='.data', vectors=None, **kwargs):
+    def iters(cls, batch_size=32, device=0, root='./data', vectors=None, **kwargs):
         """Creater iterator objects for splits of the IMDB dataset.
 
         Arguments:

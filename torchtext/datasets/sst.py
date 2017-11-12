@@ -44,7 +44,7 @@ class SST(data.Dataset):
         super(SST, self).__init__(examples, fields, **kwargs)
 
     @classmethod
-    def splits(cls, text_field, label_field, root='.data',
+    def splits(cls, text_field, label_field, root='./data',
                train='train.txt', validation='dev.txt', test='test.txt',
                train_subtrees=False, **kwargs):
         """Create dataset objects for splits of the SST dataset.
@@ -78,7 +78,7 @@ class SST(data.Dataset):
                      if d is not None)
 
     @classmethod
-    def iters(cls, batch_size=32, device=0, root='.data', vectors=None, **kwargs):
+    def iters(cls, batch_size=32, device=0, root='./data', vectors=None, **kwargs):
         """Creater iterator objects for splits of the SST dataset.
 
         Arguments:

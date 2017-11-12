@@ -39,6 +39,33 @@ class TranslationDataset(data.Dataset):
 
         super(TranslationDataset, self).__init__(examples, fields, **kwargs)
 
+    @classmethod
+    def splits(cls, exts, fields, root='./data',
+               train='train', validation='val', test='test', **kwargs):
+        """Create dataset objects for splits of a TranslationDataset.
+
+        Arguments:
+
+            root: Root dataset storage directory. Default is './data'.
+            exts: A tuple containing the extension to path for each language.
+            fields: A tuple containing the fields that will be used for data
+                in each language.
+            train: The prefix of the train data. Default: 'train'.
+            validation: The prefix of the validation data. Default: 'val'.
+            test: The prefix of the test data. Default: 'test'.
+            Remaining keyword arguments: Passed to the splits method of
+                Dataset.
+        """
+        path = cls.download(root)
+
+        train_data = None if train is None else cls(
+            os.path.join(path, train), exts, fields, **kwargs)
+        val_data = None if validation is None else cls(
+            os.path.join(path, validation), exts, fields, **kwargs)
+        test_data = None if test is None else cls(
+            os.path.join(path, test), exts, fields, **kwargs)
+        return tuple(d for d in (train_data, val_data, test_data)
+                     if d is not None)
 
 class Multi30k(TranslationDataset):
     """The small-dataset WMT 2016 multimodal task, also known as Flickr30k"""
@@ -51,13 +78,13 @@ class Multi30k(TranslationDataset):
     dirname = ''
 
     @classmethod
-    def splits(cls, exts, fields, root='.data',
-               train='train', validation='val', test='test', **kwargs):
+    def splits(cls, exts, fields, root='./data',
+               train='train', validation='val', test='test2016', **kwargs):
         """Create dataset objects for splits of the Multi30k dataset.
 
         Arguments:
 
-            root: Root dataset storage directory. Default is '.data'.
+            root: Root dataset storage directory. Default is './data'.
             exts: A tuple containing the extension to path for each language.
             fields: A tuple containing the fields that will be used for data
                 in each language.
@@ -79,14 +106,14 @@ class IWSLT(TranslationDataset):
     base_dirname = '{}-{}'
 
     @classmethod
-    def splits(cls, exts, fields, root='.data',
+    def splits(cls, exts, fields, root='./data',
                train='train', validation='IWSLT16.TED.tst2013',
                test='IWSLT16.TED.tst2014', **kwargs):
         """Create dataset objects for splits of the IWSLT dataset.
 
         Arguments:
 
-            root: Root dataset storage directory. Default is '.data'.
+            root: Root dataset storage directory. Default is './data'.
             exts: A tuple containing the extension to path for each language.
             fields: A tuple containing the fields that will be used for data
                 in each language.
@@ -153,7 +180,7 @@ class WMT14(TranslationDataset):
     dirname = ''
 
     @classmethod
-    def splits(cls, exts, fields, root='.data',
+    def splits(cls, exts, fields, root='./data',
                train='train.tok.clean.bpe.32000',
                validation='newstest2013.tok.bpe.32000',
                test='newstest2014.tok.bpe.32000', **kwargs):
@@ -161,7 +188,7 @@ class WMT14(TranslationDataset):
 
         Arguments:
 
-            root: Root dataset storage directory. Default is '.data'.
+            root: Root dataset storage directory. Default is './data'.
             exts: A tuple containing the extensions for each language. Must be
                 either ('.en', '.de') or the reverse.
             fields: A tuple containing the fields that will be used for data

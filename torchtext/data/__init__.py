@@ -3,7 +3,7 @@ from .dataset import Dataset, TabularDataset
 from .example import Example
 from .field import RawField, Field, ReversibleField, SubwordField
 from .iterator import (batch, BucketIterator, Iterator, BPTTIterator,
-                       pool)
+                       BPTTJitterIterator, pool)
 from .pipeline import Pipeline
 from .utils import get_tokenizer, interleave_keys
 
@@ -12,6 +12,6 @@ __all__ = ["Batch",
            "Example",
            "RawField", "Field", "ReversibleField", "SubwordField",
            "batch", "BucketIterator", "Iterator", "BPTTIterator",
-           "pool",
+           "BPTTJitterIterator", "pool",
            "Pipeline",
            "get_tokenizer", "interleave_keys"]

@@ -248,6 +248,75 @@ class BPTTIterator(Iterator):
             if not self.repeat:
                 raise StopIteration
 
+class BPTTJitterIterator(Iterator):
+    """Defines an iterator for language modeling tasks that use BPTT, but with 
+    Jitter on the sequence length (see here: https://arxiv.org/pdf/1708.02182.pdf)
+    There is *no* jitter during evaluation
+
+    Provides contiguous streams of examples together with targets that are
+    one timestep further forward, for language modeling training with
+    backpropagation through time (BPTT). Expects a Dataset with a single
+    example and a single field called 'text' and produces Batches with text and
+    target attributes.
+
+    Attributes:
+        dataset: The Dataset object to load Examples from.
+        batch_size: Batch size.
+        mean_bptt_len: Length of sequences for backpropagation through time.
+        sort_key: A key to use for sorting examples in order to batch together
+            examples with similar lengths and minimize padding. The sort_key
+            provided to the Iterator constructor overrides the sort_key
+            attribute of the Dataset, or defers to it if None.
+        train: Whether the iterator represents a train set.
+        repeat: Whether to repeat the iterator for multiple epochs.
+        shuffle: Whether to shuffle examples between epochs.
+        sort: Whether to sort examples according to self.sort_key.
+            Note that repeat, shuffle, and sort default to train, train, and
+            (not train).
+        device: Device to create batches on. Use -1 for CPU and None for the
+            currently active GPU device.
+    """
+
+    def __init__(self, dataset, batch_size, mean_bptt_len, **kwargs):
+        self.mean_bptt_len = mean_bptt_len
+        super(BPTTJitterIterator, self).__init__(dataset, batch_size, **kwargs)
+
+    def __len__(self):
+        """
+        WARNING: this is approximate now, and can't be reliably used to 
+        iterate over.
+        """
+        print("WARNING: len(BPTTJitterIterator) is not reliable")
+        return math.ceil((len(self.dataset[0].text) - 1) /
+                         (self.batch_size * self.mean_bptt_len))        
+
+    def __iter__(self):
+        text = self.dataset[0].text
+        TEXT = self.dataset.fields['text']
+        TEXT.eos_token = None
+        text = text + ([TEXT.pad_token] * int(math.ceil(len(text) / self.batch_size) *
+                                              self.batch_size - len(text)))
+        data = TEXT.numericalize(
+            [text], device=self.device, train=self.train)
+        data = data.view(self.batch_size, -1).t().contiguous()
+        dataset = Dataset(examples=self.dataset.examples, fields=[
+            ('text', TEXT), ('target', TEXT)])
+        while True:
+            i = 0
+            while i < len(data) - 1 - 1:
+                if self.train:
+                    bptt = self.mean_bptt_len if random.random() < 0.95 else self.mean_bptt_len / 2.
+                    seq_len = max(5, int(random.normalvariate(bptt, 5)))
+                    seq_len = min(seq_len, len(data) - i - 1)
+                else:
+                    seq_len = min(self.mean_bptt_len, len(data) - i - 1)
+                yield Batch.fromvars(
+                    dataset, self.batch_size, train=self.train,
+                    text=data[i:i + seq_len],
+                    target=data[i + 1:i + 1 + seq_len])
+                i += seq_len
+            if not self.repeat:
+                raise StopIteration
 
 class BucketIterator(Iterator):
     """Defines an iterator that batches examples of similar lengths together.

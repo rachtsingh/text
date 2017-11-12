@@ -42,14 +42,14 @@ class Dataset(torch.utils.data.Dataset):
         self.fields = dict(fields)
 
     @classmethod
-    def splits(cls, path=None, root='.data', train=None, validation=None,
+    def splits(cls, path=None, root='./data', train=None, validation=None,
                test=None, **kwargs):
         """Create Dataset objects for multiple splits of a dataset.
 
         Arguments:
             path (str): Common prefix of the splits' file paths, or None to use
                 the result of cls.download(root).
-            root (str): Root dataset storage directory. Default is '.data'.
+            root (str): Root dataset storage directory. Default is './data'.
             train (str): Suffix to add to path for the train set, or None for no
                 train set. Default is None.
             validation (str): Suffix to add to path for the validation set, or None
@@ -128,8 +128,7 @@ class Dataset(torch.utils.data.Dataset):
                     with tarfile.open(zpath, 'r:gz') as tar:
                         dirs = [member for member in tar.getmembers()]
                         tar.extractall(path=path, members=dirs)
-        return os.path.join(path, cls.dirname)
-
+        return path
 
 class TabularDataset(Dataset):
     """Defines a Dataset of columns stored in CSV, TSV, or JSON format."""

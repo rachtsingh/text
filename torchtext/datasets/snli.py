@@ -34,7 +34,7 @@ class SNLI(data.TabularDataset):
             len(ex.premise), len(ex.hypothesis))
 
     @classmethod
-    def splits(cls, text_field, label_field, parse_field=None, root='.data',
+    def splits(cls, text_field, label_field, parse_field=None, root='./data',
                train='snli_1.0_train.jsonl', validation='snli_1.0_dev.jsonl',
                test='snli_1.0_test.jsonl'):
         """Create dataset objects for splits of the SNLI dataset.
@@ -77,7 +77,7 @@ class SNLI(data.TabularDataset):
             filter_pred=lambda ex: ex.label != '-')
 
     @classmethod
-    def iters(cls, batch_size=32, device=0, root='.data',
+    def iters(cls, batch_size=32, device=0, root='./data',
               vectors=None, trees=False, **kwargs):
         """Create iterator objects for splits of the SNLI dataset.
 
