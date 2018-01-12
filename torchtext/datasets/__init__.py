@@ -2,6 +2,7 @@ from .language_modeling import LanguageModelingDataset, PennTreeBank, WikiText2 
 from .snli import SNLI
 from .sst import SST
 from .translation import TranslationDataset, Multi30k, IWSLT, WMT14  # NOQA
+from .sequence_tagging import SequenceTaggingDataset, UDPOS # NOQA
 from .trec import TREC
 from .imdb import IMDB
 
@@ -16,4 +17,6 @@ __all__ = ['LanguageModelingDataset',
            'PennTreeBank',
            'WikiText2',
            'TREC',
-           'IMDB']
+           'IMDB',
+           'SequenceTaggingDataset',
+           'UDPOS']

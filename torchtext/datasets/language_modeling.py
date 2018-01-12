@@ -117,7 +117,7 @@ class WikiText2(LanguageModelingDataset):
         """
         return super(WikiText2, cls).splits(
             root=root, train=train, validation=validation, test=test,
-            text_field=text_field)
+            text_field=text_field, **kwargs)
 
     @classmethod
     def iters(cls, batch_size=32, bptt_len=35, device=0, root='./data', vectors=None, 
